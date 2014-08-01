@@ -29,20 +29,21 @@ module NewRelic
           operation_name, collection = determine_operation_and_collection(operations.first)
           log_statement = operations.first.log_inspect.encode("UTF-8")
 
-          #operation = case operation_name
-          #         when 'INSERT', 'UPDATE', 'CREATE'               then 'save'
-          #         when 'QUERY', 'COUNT', 'GET_MORE', "AGGREGATE"  then 'find'
-          #         when 'DELETE'                                   then 'destroy'
-          #         else
-          #           nil
-          #         end
-          operation = operation_name.downcase
+          operation_orig = operation_name.downcase
+          operation = case operation_name
+                   when 'INSERT', 'UPDATE', 'CREATE'               then 'save'
+                   when 'QUERY', 'COUNT', 'GET_MORE', "AGGREGATE"  then 'find'
+                   when 'DELETE'                                   then 'destroy'
+                   else
+                     nil
+                   end
 
           command = Proc.new { logging_without_newrelic_trace(operations, &blk) }
           res = nil
 
           if operation
-            metric = "ActiveRecord/#{collection}/#{operation}"
+            #metric = "ActiveRecord/#{collection}/#{operation}"
+            metric = "ActiveRecord/#{collection}_#{operation_orig}/#{operation}"
             metrics = [metric] + ActiveRecordHelper.rollup_metrics_for(metric)
             self.class.trace_execution_scoped(metrics) do
               t0 = Time.now
