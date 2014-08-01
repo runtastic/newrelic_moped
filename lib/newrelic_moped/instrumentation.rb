@@ -43,7 +43,7 @@ module NewRelic
 
           if operation
             metric = "ActiveRecord/#{collection}/#{operation}"
-            metrics = [metric] # + ActiveRecordHelper.rollup_metrics_for(metric)
+            metrics = [metric] + ActiveRecordHelper.rollup_metrics_for(metric)
             self.class.trace_execution_scoped(metrics) do
               t0 = Time.now
               begin
